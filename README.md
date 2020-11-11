@@ -1,6 +1,10 @@
-# SOMatic-Network-Analysis
 
 This package is for performing network analysis on Linked Metaclusters from SOMatic
+
+Download the repo and make it:
+`git clone http://github.com/csjansen/SOMatic-Network-Analysis`
+`cd SOMatic-Network-Analysis`
+`make`
 
 1.) Build reference genome background file from fasta reference genome:
 fasta-get-markov hg38.fa > hg38_bg
