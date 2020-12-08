@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
         cout << "Usage: ./MotifZScore [options] -Metacluster1 <Number of metaclusters in SOM1> -Metacluster2 <Number of metaclusters in SOM2> -FusionBreakup <Location of the fusion breakup folder> -Analysis <Name of Motif Analysis> -ZScoreOutput <Main Output file> -AllOutput <Outputing all connections> -pval <pval cutoff>" <<endl;
         cout << "Options: <default>" <<endl;
         cout << "-MotifSuffix: If fimo.txt is not default, you can add a sufix. <>"<<endl;
+	cout << "-Fimo: fimo version if not 5.1.1.  Supports 4.12"<<endl;
         return 0;
     }
         int Metacluster1 = 0;
@@ -109,6 +110,7 @@ int main(int argc, char *argv[]) {
         string MotifSuffix = "";
         float ZScore=0;
         float pval=0;
+	string Fimo = "5.1.1";
         for(int i = 0; i < argc; i++) {
         string temp = argv[i];
                 if(temp.compare("-Metacluster1")==0)
@@ -127,6 +129,8 @@ int main(int argc, char *argv[]) {
             MotifSuffix = argv[i+1];
                 if(temp.compare("-pval")==0)
             istringstream(argv[i+1])>>pval;
+		if(temp.compare("-Fimo")==0)
+		Fimo = argv[i+1];
         }
         if(pval > 0) {
 //              ZScore = sqrt(2)*inverfc(2*pval);
@@ -159,7 +163,10 @@ for(int i = 0; i < Metacluster1; i++) {
   //            i=9;
                 for(int j = 0; j < Metacluster2; j++) {
 //                      j=18;
-                        string filename = Analysis+"_"+SSTR(i)+"_"+SSTR(j)+"_fimo/fimo.tsv"+MotifSuffix;
+                        string filename = Analysis+"_"+SSTR(i)+"_"+SSTR(j)+"_fimo/fimo.tsv";
+			if(Fimo.compare("4.12")==0) {
+				filename = Analysis+"_"+SSTR(i)+"_"+SSTR(j)+"_fimo/fimo.txt";
+			}
                         cout<<filename<<endl;
                         ifstream infile(filename.c_str());
                         if(!infile.good())
@@ -231,8 +238,10 @@ for(int i = 0; i < Metacluster1; i++) {
                         string filename = FusionBreakup+"Combo_"+SSTR(i)+"_"+SSTR(j);
                         cout<<filename<<endl;
                         ifstream infile(filename.c_str());
-                        if(!infile.good())
+                        if(!infile.good()) {
+				cout << "Couldn't find.  Continuing"<<endl;
                                 continue;
+			}
                         string line;
 			vector<Region> Regions;
                         while(getline(infile,line)) {

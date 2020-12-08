@@ -14,6 +14,9 @@ then
                             # Usage: scriptname -options
                             # Note: dash (-) necessary
 fi
+
+extraOptions=""
+
 while (( "$#" ));
 do
   case "$1" in
@@ -21,11 +24,13 @@ do
     -LinkFolder) LinkFolder=$2;;
     -Metacluster1) Metacluster1=$2;;
     -Metacluster2) Metacluster2=$2;;
-    -Pval) Pval=$2
+    -Pval) Pval=$2;;
+    -Fimo) extraOptions=echo $extraOptions," -Fimo $2";;
   esac
 
   shift
 done
 echo $Pval
-./MotifZscore/MotifZScore -Metacluster1 $Metacluster1 -Metacluster2 $Metacluster2 -FusionBreakup $LinkFolder -Analysis $Analysis/Motifs -ZScoreOutput $Analysis/ZScore_out -AllOutput $Analysis/AllOut -pval $Pval
+echo $extraOptions
+MotifZscore/MotifZScore -Metacluster1 $Metacluster1 -Metacluster2 $Metacluster2 -FusionBreakup $LinkFolder -Analysis $Analysis/Motifs -ZScoreOutput $Analysis/ZScore_out -AllOutput $Analysis/AllOut -pval $Pval $extraOptions
 
