@@ -25,7 +25,7 @@ do
     -Metacluster1) Metacluster1=$2;;
     -Metacluster2) Metacluster2=$2;;
     -Pval) Pval=$2;;
-    -Fimo) extraOptions=echo $extraOptions," -Fimo $2";;
+    -Fimo) extraOptions="$extraOptions -Fimo $2";;
   esac
 
   shift

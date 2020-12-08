@@ -21,6 +21,10 @@ Download the repo and make it:
 
 `./MotifEnrichment.sh -Metacluster1 <Number of DNA metaclusters> -Metacluster2 <Number of RNA metaclusters> -LinkFolder <Location of Linked Metacluster folder> -Analysis <Name of Motif Analysis> -pval <Desired zscore pvalue>`
 
+If your system only has fimo v4.12 instead of 5.1.1, use:
+
+-Fimo 4.12
+
 4.) Run Network generation
 
 `./MakeNetwork.sh -Analysis <Name of Motif Analysis> -LinkFolder <Location of Linked Metacluster folder> -Metacluster1 <Number of DNA metaclusters> -Metacluster2 <Number of RNA metaclusters> -Output <Output File Location>`
