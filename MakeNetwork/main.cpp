@@ -226,12 +226,18 @@ int main(int argc, char* argv[]) {
         ifstream motifFile(motifFileName.c_str());
         string line;
         map<string,string> IDtoGeneName;
+	bool first = true;
         while(getline(motifFile,line)) {
+		if(first) {
+			first = false;
+			continue;
+		}
                 if(!ChIP) {
                         vector<string> splitz = split(line,'\t');
 //			cout<<splitz[0]<<'\t'<<splitz[2]<<endl;
-                        IDtoGeneName[splitz[0]]=splitz[2];
-                        cout<<splitz[0]<<'\t'<<splitz[2]<<'\t'<<IDtoGeneName[splitz[0]]<<endl;
+			vector<string> splitz2 = split(splitz[2],':');
+                        IDtoGeneName[splitz[0]]=splitz2[0];
+                        cout<<splitz[0]<<'\t'<<splitz2[0]<<endl;
                 }
         }
         cout<<"Parsing Fusion Combo Files"<<endl;
