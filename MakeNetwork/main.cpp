@@ -235,9 +235,9 @@ int main(int argc, char* argv[]) {
                 if(!ChIP) {
                         vector<string> splitz = split(line,'\t');
 //			cout<<splitz[0]<<'\t'<<splitz[2]<<endl;
-			vector<string> splitz2 = split(splitz[2],':');
-                        IDtoGeneName[splitz[0]]=splitz2[0];
-                        cout<<splitz[0]<<'\t'<<splitz2[0]<<endl;
+//vector<string> splitz2 = split(splitz[0],'.');
+                        IDtoGeneName[splitz[0]]=splitz[2];
+                        cout<<splitz[0]<<'\t'<<splitz[2]<<endl;
                 }
         }
         cout<<"Parsing Fusion Combo Files"<<endl;
@@ -278,6 +278,7 @@ cout<<inputprefix<<endl;
                 vector<string> splitz = split(line,'\t');
                 if(splitz.size() < 6) continue;
                 if(!ChIP) {
+//			cout<<line<<endl;
                         string TFName = splitz[0];
                         int row;
                         int col;
@@ -287,26 +288,39 @@ cout<<inputprefix<<endl;
 //                              cout<<splitz[i]<<endl;
                                 genomicRegion temp;
                                 vector<string> splitz2 = split(splitz[i],':');
+//				cout<<"1"<<endl;
                                 vector<string> splitz3 = split(splitz2[1],'-');
+//				cout<<"1"<<endl;
                                 temp.chrom = splitz2[0];
+//				cout<<"1"<<endl;
                                 istringstream(splitz3[0])>>temp.start;
+//				cout<<"1"<<endl;
                                 istringstream(splitz3[1])>>temp.stop;
-                                temp.strand=splitz2[1][splitz2[1].length()-1];
+//				cout<<"1"<<endl;
+                                temp.strand=(splitz2[1])[splitz2[1].length()-2];
+//				cout<<splitz2[1]<<endl;
+//				cout<<temp.strand<<endl;
+//				cout<<"1"<<endl;
                                 vector<string> foundgenes;
 //                              cout<<temp.stop<<endl;
 
 //                                      cout<<row<<'\t'<<col<<endl;
+  //                                    cout<<Combos[row][col].size()<<endl;
                                 for(int j = 0; j < Combos[row][col].size(); j++) {
                                         Combo test=Combos[row][col][j];
-//                                      cout<<test.chr<<endl;
+    //                                  cout<<test.chr<<endl;
                                         string chrtemp = "chr";
                                         if((temp.chrom).compare(test.chr)==0 && ((temp.start<=test.start && temp.stop >= test.start)||(temp.start <= test.stop && temp.stop >= test.stop)||(temp.start>=test.start && temp.stop <= test.stop)||(temp.start<=test.start&&temp.stop>=test.stop))) {
-//                                                cout<<TFName<<'\t'<<IDtoGeneName[TFName]<<endl;
-                                                if(IDtoGeneName[TFName].compare("")==0)
-                                                        OutBedFile<<TFName<<"\t->\t"<<test.gene<<'\t'<<temp.chrom<<'\t'<<temp.start<<'\t'<<temp.stop<<'\t'<<temp.strand<<'\t'<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<'\t'<<splitz[5]<<endl;
-                                                else
-                                                        OutBedFile<<IDtoGeneName[TFName]<<"\t->\t"<<test.gene<<'\t'<<temp.chrom<<'\t'<<temp.start<<'\t'<<temp.stop<<'\t'<<temp.strand<<'\t'<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<'\t'<<splitz[5]<<endl;
+                                         //       cout<<TFName<<'\t'<<IDtoGeneName[TFName]<<endl;
+                                       //         if(IDtoGeneName[TFName].compare("")==0)
+                                         //               OutBedFile<<TFName<<'\t'<<TFName<<"\t->\t"<<test.gene<<'\t'<<temp.chrom<<'\t'<<temp.start<<'\t'<<temp.stop<<'\t'<<temp.strand<<'\t'<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<endl;
+                                        //        else {
+//							cout<<splitz.size()<<endl;
+//							cout<<IDtoGeneName[TFName]<<"\t->\t"<<test.gene<<'\t'<<temp.chrom<<'\t'<<temp.start<<'\t'<<temp.stop<<'\t'<<temp.strand<<'\t'<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<'\t'<<splitz[5]<<endl;
+                                                       OutBedFile<<TFName<<'\t'<<IDtoGeneName[TFName]<<"\t->\t"<<test.gene<<'\t'<<temp.chrom<<'\t'<<temp.start<<'\t'<<temp.stop<<'\t'<<temp.strand<<'\t'<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<endl;
+					//	}
                                                 break;
+						
 
                                         }
                                 }

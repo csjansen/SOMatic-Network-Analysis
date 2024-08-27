@@ -89,8 +89,8 @@ struct Region {
         string chr;
         int start;
         int stop;
-        string qval;
-        string Gene;
+        //string qval;
+        vector<string> Gene;
         string strand;
 };
 int main(int argc, char *argv[]) {
@@ -134,6 +134,7 @@ int main(int argc, char *argv[]) {
         }
         if(pval > 0) {
 //              ZScore = sqrt(2)*inverfc(2*pval);
+               	pval = pval/(double)(Metacluster1*Metacluster2);
                 ZScore = -1*sqrt(2)*inverfc(2*pval-1);
         }
         cout<<ZScore<<endl;
@@ -189,6 +190,7 @@ for(int i = 0; i < Metacluster1; i++) {
 					continue;
 				} 
                                 string TF = splitz[0];
+
 //                              cout<<TF<<endl;
                                 map<string,int>::iterator it = TFDict.find(TF);
                                 int pos;
@@ -217,12 +219,13 @@ for(int i = 0; i < Metacluster1; i++) {
                                         pos = (int)it->second;
                                 }
                                 Region temp;
-                                //cout<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<endl;
+//                                cout<<splitz[1]<<'\t'<<splitz[2]<<'\t'<<splitz[3]<<'\t'<<splitz[4]<<'\t'<<splitz[5]<<endl;
                                 temp.chr = splitz[2];
                                 istringstream(splitz[3])>>temp.start;
                                 istringstream(splitz[4])>>temp.stop;
-                                temp.qval = splitz[8];
+                                //temp.qval = splitz[8];
                                 temp.strand = splitz[5];
+//				cout<<temp.strand<<endl;
                                 RegionsForEachTFInEachList[i][j][pos].push_back(temp);
                                 motifNum++;
                         }
@@ -233,7 +236,11 @@ for(int i = 0; i < Metacluster1; i++) {
         }
 	TFDict.clear();
         cout<<"Motif Number: "<<TFList.size()<<endl;
+	int NumberOfRegions[Metacluster1][Metacluster2];
+//	vector<vector<int>> NumberOfRegions;
+	int numNonEmpty = 0;
 	for(int i = 0; i < Metacluster1; i++) {
+		vector<int> tempRegions;
                 for(int j = 0; j < Metacluster2; j++) {
                         string filename = FusionBreakup+"Combo_"+SSTR(i)+"_"+SSTR(j);
                         cout<<filename<<endl;
@@ -254,27 +261,50 @@ for(int i = 0; i < Metacluster1; i++) {
                         //      cout<<temp.chr<<endl;
                                 istringstream(splitz[1])>>temp.start;
                                 istringstream(splitz[2])>>temp.stop;
-                                temp.Gene = splitz[3];
-                                for(int k = 0; k < TFList.size(); k++) {
-                                        NumOfMatches[i][j][k][temp.Gene]=0;
-                                }
-				Regions.push_back(temp);
+				int found = -1;
+				for(int k = 0; k < Regions.size(); k++) {
+					if(Regions[k].chr==temp.chr && Regions[k].start==temp.start && Regions[k].stop==temp.stop) {
+						found = k;
+						break;
+					}
+				}
+				if(found==-1) {
+                                	temp.Gene.push_back(splitz[3]);
+                                	for(int k = 0; k < TFList.size(); k++) {
+                                        	NumOfMatches[i][j][k][splitz[3]]=0;
+                                	}
+					Regions.push_back(temp);
+				} else {
+					Regions[found].Gene.push_back(splitz[3]);
+					for(int k = 0; k < TFList.size(); k++) {
+                                                NumOfMatches[i][j][k][splitz[3]]=0;
+                                        }
+				}
                         }
+			NumberOfRegions[i][j]=Regions.size();
+//			tempRegions.push_back(Regions.size());
+			if(Regions.size()>0) {
+				numNonEmpty++;
+			}
                         infile.close();
         		for(int k = 0; k < TFList.size(); k++) {
                 		cout<<i<<'\t'<<j<<'\t'<<TFList[k]<<'\t'<<k+1<<'/'<<TFList.size()<<endl;
                                 for(int n = 0; n < Regions.size(); n++) {
                                         for(int m = 0; m < RegionsForEachTFInEachList[i][j][k].size(); m++) {
-				//		cout<<Regions[n].chr<<'\t'<<RegionsForEachTFInEachList[i][j][k][m].chr<<endl;
+			//		cout<<Regions[n].chr<<'\t'<<RegionsForEachTFInEachList[i][j][k][m].chr<<endl;
                                                 if(Regions[n].chr.compare(RegionsForEachTFInEachList[i][j][k][m].chr)==0 && Regions[n].start <= RegionsForEachTFInEachList[i][j][k][m].start && Regions[n].stop >= RegionsForEachTFInEachList[i][j][k][m].stop){
 				//			cout<<m<<endl;
-                                                        NumOfMatches[i][j][k][Regions[n].Gene]++;
+							//RegionsForEachTFInEachList[i][j][k][m].Gene=Regions[n].Gene;
+							for(int t = 0; t < Regions[n].Gene.size(); t++) { 
+                                                        	NumOfMatches[i][j][k][Regions[n].Gene[t]]++;
+							}
                                                         nums[i][j][k].push_back(m);
                                                 }
                                         }
                                 }
                         }
                 }
+//		NumberOfRegions.push_back(tempRegions);
         }
         ofstream outfile(ZScoreOutputFileName.c_str());
         ofstream outfile2(AllOutputFileName.c_str());
@@ -297,14 +327,14 @@ for(int i = 0; i < Metacluster1; i++) {
                                 int totalcount = 0;
                                 for(int n = 0; n < keys.size(); n++) {
                                         if(NumOfMatches[j][k][i][keys[n]]>0) {
-                                                if(keys.size() > 1) {
+                                                if(keys.size() > 0) {
                                                         total1+= 1/(double)keys.size();
                                                         totalcount++;
                                                 }
                                         }
                                         //cout<<keys[n]<<'\t'<<NumOfMatches[j][k][i][keys[n]]<<'\t'<<total1<<endl;
                                 }
-                                if(totalcount==1) total1=0;
+                                //if(totalcount==1) total1=0;
                                 ValuesRow.push_back(total1);
                                 total+=total1;
                 //              break;
@@ -312,7 +342,7 @@ for(int i = 0; i < Metacluster1; i++) {
                         ValuesMat.push_back(ValuesRow);
                 //      break;
                 }
-                double average = total/(double)(Metacluster1*Metacluster2);
+                double average = total/(double)(numNonEmpty);
                 double stddevtotal = 0;
                 for(int j = 0; j < ValuesMat.size(); j++) {
                         for(int k = 0; k < ValuesMat[j].size(); k++) {
@@ -322,19 +352,23 @@ for(int i = 0; i < Metacluster1; i++) {
                 double stddev = sqrt(stddevtotal/(float)(Metacluster1*Metacluster2));
                 for(int j = 0; j < Metacluster1; j++) {
                         for(int k = 0; k < Metacluster2; k++) {
-                                double zscore = (ValuesMat[j][k]-average)/(stddev);
+				double zscore = 0;
+				if(stddev > 0)
+                                	zscore = (ValuesMat[j][k]-average)/(sqrt(average*(1-average)/(double)(NumberOfRegions[j][k])));
+//				if(nums[j][k][i].size()<=1)
+//					zscore = 0;
                                 if(zscore > ZScore) {
-                                        outfile<<TFList[i]<<'\t'<<j<<'\t'<<k<<'\t'<<ValuesMat[j][k]<<'\t'<<'\t'<<zscore;
+                                        outfile<<TFList[i]<<'\t'<<j<<'\t'<<k<<'\t'<<ValuesMat[j][k]<<'\t'<<zscore;
                                         for(int n = 0; n < nums[j][k][i].size();n++) {
 						Region R = RegionsForEachTFInEachList[j][k][i][nums[j][k][i][n]];
-                                                outfile<<'\t'<<R.chr<<":"<<R.start<<"-"<<R.stop<<"-"<<R.qval<<"-"<<R.strand;
+                                                outfile<<'\t'<<R.chr<<":"<<R.start<<"-"<<R.stop<<"-"<<R.strand;
                                         }
                                         outfile<<endl;
                                 }
-                                //outfile2<<TFList[i]<<'\t'<<j<<'\t'<<k<<'\t'<<ValuesMat[j][k]<<'\t'<<zscore;
+                                outfile2<<TFList[i]<<'\t'<<j<<'\t'<<k<<'\t'<<ValuesMat[j][k]<<'\t'<<zscore<<'\t'<<average<<'\t'<<NumberOfRegions[j][k];
                                 for(int n = 0; n < nums[j][k][i].size();n++) {
 					Region R = RegionsForEachTFInEachList[j][k][i][nums[j][k][i][n]];
-                                      //  outfile2<<'\t'<<R.chr<<":"<<R.start<<"-"<<R.stop<<"-"<<R.qval<<"-"<<R.strand;
+                                        outfile2<<'\t'<<R.chr<<":"<<R.start<<"-"<<R.stop<<"-"<<R.strand;
                                 }
                                 outfile2<<endl;
                         }
